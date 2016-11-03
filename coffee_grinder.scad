@@ -28,9 +28,11 @@ chuteVerticalInner = 23.5;
 thickness = 2;
 
 // cone section
-// 441.325 top
-// 469.9mm bottom
+// top radius = 133/2
+// 469.9mm bottom (circumference)
 // 104.775 mm distance
+
+cylinder(h=147.5, r1=74.7869, r2=66.5);
 
 // convenience identifiers 
 upper_horizontal_offset = (outsideHorizontalLower - outsideHorizontalUpper) / 2;
@@ -95,7 +97,9 @@ chute_deduction_faces = [
     [6, 7, 3, 2], // back
     [7, 4, 0, 3]  // left
 ];
-difference() {
+
+translate(v=[0,0,150])
+  difference() {
     polyhedron(plate_points, plate_faces);
     polyhedron(chute_deduction_points, chute_deduction_faces);
-}
+  }

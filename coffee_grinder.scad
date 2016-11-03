@@ -27,6 +27,11 @@ chuteVerticalInner = 23.5;
 
 thickness = 2;
 
+// cone section
+// 441.325 top
+// 469.9mm bottom
+// 104.775 mm distance
+
 // convenience identifiers 
 upper_horizontal_offset = (outsideHorizontalLower - outsideHorizontalUpper) / 2;
 

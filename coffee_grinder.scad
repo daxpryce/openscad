@@ -27,12 +27,28 @@ chuteVerticalInner = 23.5;
 
 thickness = 2;
 
+/*
+ * measurements taken of 'cone' portion of grinder
+ * top diameter = 133mm
+ * bottom circumference = 18.5" (469.9mm) - questionable accuracy (tape only went to 1/8", there's an opening cut in the side of the cone that had to be approximated via slack in the tape, etc
+ * distance between bottom of cone where measurement was taken and top of cone where measurement was taken: 104.775mm distance (calculated again via tape)
+ * first let's get the height using the measurements we have:
+ */
+
+pi = 3.14159265;
+top_radius = 133/2;
+bottom_radius = 469.9 / (2*pi)
+triangle_bottom = bottom_radius - top_radius;
+c = 104.775;
+// pythagoras saves all
+cone_height = sqrt(pow(c,2) - pow(triangle_bottom, 2));
+
 // cone section
 // top radius = 133/2
 // 469.9mm bottom (circumference)
 // 104.775 mm distance
 
-cylinder(h=147.5, r1=74.7869, r2=66.5);
+cylinder(h=cone_height, r1=bottom_radius, r2=top_radius);
 
 // convenience identifiers 
 upper_horizontal_offset = (outsideHorizontalLower - outsideHorizontalUpper) / 2;

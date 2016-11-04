@@ -37,7 +37,7 @@ thickness = 2;
 
 pi = 3.14159265;
 top_radius = 133/2;
-bottom_radius = 469.9 / (2*pi)
+bottom_radius = 469.9 / (2*pi);
 triangle_bottom = bottom_radius - top_radius;
 c = 104.775;
 // pythagoras saves all

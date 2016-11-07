@@ -3,8 +3,17 @@ start = 0.5;
 end = 8;
 angle_from_vert=start + (end-start) * $t;
 
-bottom_width = 56;
-top_width = 41;
+// 130 mm outside diameter top of cone
+// 470 mm outside circumerence bottom of cone
+// 123 mm oustide diameter of cylinder
+
+// 122.6 mm outside diameter top of cone cutout (top of code inset 7.4)
+// 16 mm bottom of cone cutout inset
+
+// 144 mm plate_height vertical (not along sides of plate)
+
+bottom_width = 63.5; //56;
+top_width = 50; //41.5;
 height = 144;
 chute_width = 20;
 chute_height = 23.5;
@@ -76,7 +85,7 @@ module receptacle(plate_top_width, plate_bottom_width, plate_height, angle_from_
     // yc = (sq(xb) - sq(yt) - sq(xt)) / (-2yt)
     yc = (sq(xb) - sq(yt) - sq(xt)) / (-2*yt);
     r = sqrt(sq(yc) + sq(xb));
-    echo("bottom circumference=", 2*PI*r, "bottom diameter=", 2*r, "bottom radius=", r);
+    echo("circumference=", 2*PI*r, "diameter=", 2*r, "radius=", r);
     translate([0, yc, 0])
     if (solid) {
         cylinder(r=r, h=zt, $fn=100);
@@ -88,14 +97,14 @@ module receptacle(plate_top_width, plate_bottom_width, plate_height, angle_from_
     }
 }
 
-color("red")
-rotate([90-angle_from_vert, 0, 0])
-    flat_plate();
+//color("red")
+//rotate([90-angle_from_vert, 0, 0])
+//    flat_plate();
 
 color("green")
-//difference(){
-intersection(){
+difference(){
+//intersection(){
     grinder(top_width, bottom_width, height, angle_from_vert);
-    receptacle(top_width, bottom_width, height, angle_from_vert, solid=false);
+    receptacle(top_width, bottom_width, height, angle_from_vert, solid=true);
 }
 

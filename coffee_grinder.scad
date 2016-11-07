@@ -36,18 +36,19 @@ thickness = 2;
  */
 
 pi = 3.14159265;
-top_radius = 133/2;
-bottom_radius = 469.9 / (2*pi);
-triangle_bottom = bottom_radius - top_radius;
-c = 104.775;
+top_radius = 133/2;  // 66.5
+bottom_radius = 469.9 / (2*pi); // 74.786
+triangle_bottom = bottom_radius - top_radius; // 8.286
+c = 104.775; // hypotenuse
 // pythagoras saves all
-cone_height = sqrt(pow(c,2) - pow(triangle_bottom, 2));
+cone_height = sqrt(pow(c,2) - pow(triangle_bottom, 2)); // 104.44
 
 // cone section
 // top radius = 133/2
 // 469.9mm bottom (circumference)
 // 104.775 mm distance
 
+translate([0, bottom_radius, 0])
 cylinder(h=cone_height, r1=bottom_radius, r2=top_radius);
 
 // convenience identifiers 
@@ -114,7 +115,8 @@ chute_deduction_faces = [
     [7, 4, 0, 3]  // left
 ];
 
-translate(v=[0,0,150])
+rotate([-4.6, 0, 0])
+translate(v=[-outsideHorizontalLower/2, -2, 0])
   difference() {
     polyhedron(plate_points, plate_faces);
     polyhedron(chute_deduction_points, chute_deduction_faces);

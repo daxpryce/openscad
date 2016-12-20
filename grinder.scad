@@ -1,110 +1,68 @@
-// range from 0 to 30 by 1 degree
-start = 0.5;
-end = 8;
-angle_from_vert=start + (end-start) * $t;
+// cone_top_diameter is more sensitive
+// due to lower resolution (diameter instead of circumference)
+// try increasing it slightly first...
+cone_top_diameter = 130;
+cone_bottom_circumference = 470;
+cone_bottom_inset = 16.75;
 
-// 130 mm outside diameter top of cone
-// 470 mm outside circumerence bottom of cone
-// 123 mm oustide diameter of cylinder
-
-// 122.6 mm outside diameter top of cone cutout (top of code inset 7.4)
-// 16 mm bottom of cone cutout inset
-
-// 144 mm plate_height vertical (not along sides of plate)
-
-bottom_width = 63.5; //56;
-top_width = 50; //41.5;
 height = 144;
-chute_width = 20;
-chute_height = 23.5;
-chute_offset = 89;
+cylinder_diameter = 123;
 
-module flat_plate(thickness = 1){
-    linear_extrude(thickness)
+cone_bottom_radius = cone_bottom_circumference / (2 * PI);
+cone_top_radius = cone_top_diameter / 2;
+cylinder_radius = cylinder_diameter / 2;
+
+module grinder(){
+    cylinder(r1=cone_bottom_radius, r2=cone_top_radius , h=height, $fn=100);
+}
+
+// I'm using the receptacle to intersect with, so I changed it's height
+// to half the plate's height, and gave it a top and bottom to form the ledges.
+module receptacle(){
     difference(){
-        polygon([ // names below are when facing in +Y direction
-            [-bottom_width/2, 0],   // bottom left
-            [bottom_width/2, 0],    // bottom right
-            [top_width/2, height],  // top right
-            [-top_width/2, height]  // top left
-        ]);
-        translate([0, chute_height/2 + chute_offset])
-            square([chute_width, chute_height], true);
+        cylinder(r=cylinder_radius, h=height/2, $fn=100);
+        translate([0, 0, 2])
+            cylinder(r=cylinder_radius-2, h=height/2-4, $fn=100);
     }
 }
 
-module grinder(plate_top_width, plate_bottom_width, plate_height, angle_from_vert){
-    echo("grinder plate angle=", angle_from_vert);
-    // top view
-    //           ^---------yc = center of circles
-    //          /|\
-    //         / | \
-    //        /  |  \
-    //       /---+---\--+--yt = top
-    //      /    |   |\ | 
-    //     /-----+---+-\|--yb = bottom (= 0)
-    //              xt  xb
-    xt = plate_top_width / 2;
-    yt = plate_height * sin(angle_from_vert);
-    zt = plate_height * cos(angle_from_vert);
-    xb = plate_bottom_width / 2;
-    yb = 0;
-    zb = 0;
-    xc = 0;
-    yc = yt / (xb - xt) * xb;
-    rt = sqrt((plate_top_width / 2)*(plate_top_width / 2) + (yc-yt)*(yc-yt));
-    rb = sqrt((plate_bottom_width / 2)*(plate_bottom_width / 2) + yc*yc);
-    echo("top circumference=", 2*PI*rt, "top diameter=", 2*rt, "top radius=", rt);
-    echo("bottom circumference=", 2*PI*rb, "bottom diameter=", 2*rb, "bottom radius=", rb);
-    translate([0, yc, 0])
-        cylinder(r1=rb, r2=rt, h=zt, $fn=100);
-}
-
-function sq(x) = pow(x, 2);
-
-module receptacle(plate_top_width, plate_bottom_width, plate_height, angle_from_vert, solid = false){
-    echo("receptacle plate angle=", angle_from_vert);
-    // top view
-    //       /-----+-----\--+--yt = top
-    //      / \    |     |\ | 
-    //     /---\---+-----+-\|--yb = bottom (= 0)
-    //      `   \  |    xt  xb
-    //        `  \ |
-    //          ` \|
-    //            `v-----------yc = center of circle
-    xt = plate_top_width / 2;
-    yt = plate_height * sin(angle_from_vert);
-    zt = plate_height * cos(angle_from_vert);
-    xb = plate_bottom_width / 2;
-    yb = 0;
-    zb = 0;
-    xc = 0;
-    // sq(r) = sq(-yc+yt) + sq(xt) = sq(-yc) + sq(xb)
-    // sq(yc) - 2*yc*yt + sq(yt) + sq(xt) = sq(yc) + sq(xb)
-    // -2*yc*yt + sq(yt) + sq(xt) = sq(xb)
-    // yc = (sq(xb) - sq(yt) - sq(xt)) / (-2yt)
-    yc = (sq(xb) - sq(yt) - sq(xt)) / (-2*yt);
-    r = sqrt(sq(yc) + sq(xb));
-    echo("circumference=", 2*PI*r, "diameter=", 2*r, "radius=", r);
-    translate([0, yc, 0])
-    if (solid) {
-        cylinder(r=r, h=zt, $fn=100);
-    } else {
-        difference(){
-            cylinder(r=r, h=zt, $fn=100);
-            cylinder(r=r - 2, h=zt, $fn=100);
+module plate_top(){
+    difference(){
+        translate([0, -cone_bottom_inset/2, 0])
+        intersection(){
+            translate([0, cone_bottom_radius, 0])
+                grinder();
+            translate([0, -cylinder_radius+1 + cone_bottom_inset, 0])
+                receptacle();
+        }
+        union(){
+            // round hole
+            cylinder(r=3.5, h=4, center=true, $fn=100);
+            // chute hole
+            translate([0, 0, 89+11.75])
+                cube([20, 100, 23.5], center=true);
         }
     }
 }
 
-//color("red")
-//rotate([90-angle_from_vert, 0, 0])
-//    flat_plate();
-
-color("green")
-difference(){
-//intersection(){
-    grinder(top_width, bottom_width, height, angle_from_vert);
-    receptacle(top_width, bottom_width, height, angle_from_vert, solid=true);
+module plate_bottom(){
+    difference(){
+        translate([0, -cone_bottom_inset/2, 0])
+        intersection(){
+            translate([0, cone_bottom_radius, 0])
+                grinder();
+            translate([0, -cylinder_radius+1 + cone_bottom_inset, height/2])
+                receptacle();
+        }
+        union(){
+            // round hole
+            cylinder(r=3.5, h=4, center=true, $fn=100);
+            // chute hole
+            translate([0, 0, 89+11.75])
+                cube([20, 100, 23.5], center=true);
+        }
+    }
 }
 
+plate_bottom();
+plate_top();
